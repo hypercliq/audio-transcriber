@@ -141,9 +141,11 @@ class AudioTranscriber:
 
     def start_recording(self, device_index, sample_rate, frames_per_buffer=1024):
         self.chosen_sample_rate = sample_rate
-        self.desired_length = self.chosen_sample_rate * 2 * 5  # Adjust for 16-bit audio
+        # Adjusting for 16-bit audio, assuming 2 bytes per sample.
+        self.desired_length = self.chosen_sample_rate * 2 * 5  # 5 seconds of audio
 
         p = pyaudio.PyAudio()
+        stream = None
         try:
             stream = p.open(
                 format=pyaudio.paInt16,
@@ -158,19 +160,16 @@ class AudioTranscriber:
             print("Recording. Press Ctrl+C to stop.")
 
             # Ensuring the stream is active before entering the loop
-            if stream.is_active():
-                try:
-                    while stream.is_active():
-                        time.sleep(0.1)  # Sleep to reduce CPU usage
-                except KeyboardInterrupt:
-                    print("Stopping recording...")
-                except Exception as e:
-                    print(f"An error occurred: {e}")
+            while stream.is_active():
+                time.sleep(0.1)  # Sleep to reduce CPU usage
+
+        except KeyboardInterrupt:
+            print("Stopping recording...")
         except Exception as e:
-            print(f"Failed to open stream: {e}")
+            print(f"An error occurred: {e}")
         finally:
             # Ensure resources are always cleaned up
-            if "stream" in locals() and stream.is_active():
+            if stream and stream.is_active():
                 stream.stop_stream()
                 stream.close()
             p.terminate()

@@ -1,54 +1,73 @@
-import pyaudio
-import wave
-import tempfile
-import os
-import whisper
-import warnings
 import audioop
 import math
-from threading import Thread
-from queue import Queue
+import os
+import tempfile
 import time
+import warnings
+import wave
+from queue import Queue
+from threading import Thread
+
+import pyaudio
+import whisper
+
 
 class AudioTranscriber:
     def __init__(self, model_size="base"):
         # Suppress the FP16 warning
-        warnings.filterwarnings("ignore", message="FP16 is not supported on CPU; using FP32 instead")
+        warnings.filterwarnings(
+            "ignore", message="FP16 is not supported on CPU; using FP32 instead"
+        )
         self.model = whisper.load_model(model_size)
         self.audio_buffer = bytes()
-        self.chosen_sample_rate = None        
+        self.chosen_sample_rate = None
         self.processing_queue = Queue()
         self.is_processing = True
         self.start_background_transcription()
         self.desired_length = None
 
     def start_background_transcription(self):
-        def process_audio_chunks():
-            while self.is_processing or not self.processing_queue.empty():
-                if not self.processing_queue.empty():
-                    audio_chunk, temp_file_path = self.processing_queue.get()
-                    volume_db = self.process_audio_chunk(audio_chunk)
-                    try:
-                        result = self.model.transcribe(temp_file_path, word_timestamps=True)
-                        os.remove(temp_file_path)  # Clean up the temporary file
-                        # Assuming 'segments' now includes 'words' with timestamps
-                        if "segments" in result:
-                            for segment in result["segments"]:
-                                if "words" in segment:
-                                    for word_info in segment["words"]:
-                                        word = word_info["word"]
-                                        start_time = word_info["start"]
-                                        end_time = word_info["end"]
-                                        probability = word_info.get("probability", "N/A")  # Probability might be optional
-                                        print(f"Word: {word} (Start: {start_time}s, End: {end_time}s, Probability: {probability}, Volume: {volume_db} dB)")
-            
-                    except Exception as e:
-                        print(f"Error during transcription: {e}")
-                else:
-                    time.sleep(0.1)  # Sleep briefly to avoid busy waiting
-
-        self.processing_thread = Thread(target=process_audio_chunks)
+        self.processing_thread = Thread(target=self.process_audio_chunks)
         self.processing_thread.start()
+
+    def process_audio_chunks(self):
+        while self.is_processing or not self.processing_queue.empty():
+            if not self.processing_queue.empty():
+                self.process_queue_item()
+            else:
+                time.sleep(0.1)  # Sleep briefly to avoid busy waiting
+
+    def process_queue_item(self):
+        audio_chunk, temp_file_path = self.processing_queue.get()
+        volume_db = self.process_audio_chunk(audio_chunk)
+        try:
+            result = self.model.transcribe(temp_file_path, word_timestamps=True)
+            os.remove(temp_file_path)  # Clean up the temporary file
+            self.process_transcription_result(result, volume_db)
+        except Exception as e:
+            print(f"Error during transcription: {e}")
+
+    def process_transcription_result(self, result, volume_db):
+        # Assuming 'segments' now includes 'words' with timestamps
+        if "segments" in result:
+            for segment in result["segments"]:
+                self.process_segment(segment, volume_db)
+
+    def process_segment(self, segment, volume_db):
+        if "words" in segment:
+            for word_info in segment["words"]:
+                self.print_word_info(word_info, volume_db)
+
+    def print_word_info(self, word_info, volume_db):
+        word = word_info["word"]
+        start_time = word_info["start"]
+        end_time = word_info["end"]
+        probability = word_info.get(
+            "probability", "N/A"
+        )  # Probability might be optional
+        print(
+            f"Word: {word} (Start: {start_time}s, End: {end_time}s, Probability: {probability}, Volume: {volume_db} dB)"
+        )
 
     def list_audio_devices(self):
         p = pyaudio.PyAudio()
@@ -70,11 +89,18 @@ class AudioTranscriber:
         print("Testing supported sample rates for the device...")
         for rate in sample_rates:
             try:
-                stream = p.open(format=pyaudio.paInt16, channels=1, rate=rate, input=True, input_device_index=device_index, frames_per_buffer=4096)
+                stream = p.open(
+                    format=pyaudio.paInt16,
+                    channels=1,
+                    rate=rate,
+                    input=True,
+                    input_device_index=device_index,
+                    frames_per_buffer=4096,
+                )
                 stream.close()
                 supported_rates.append(rate)
                 print(f"Supported: {rate} Hz")
-            except Exception as e:
+            except Exception:
                 continue
         p.terminate()
         return supported_rates
@@ -90,7 +116,7 @@ class AudioTranscriber:
 
     def process_audio_chunk(self, in_data):
         rms = audioop.rms(in_data, 2)  # Assuming 16-bit audio
-        volume_db = 20 * math.log10(rms) if rms > 0 else -float('inf')
+        volume_db = 20 * math.log10(rms) if rms > 0 else -float("inf")
         return volume_db
 
     def audio_callback(self, in_data, frame_count, time_info, status):
@@ -98,9 +124,9 @@ class AudioTranscriber:
         self.audio_buffer += in_data
         if len(self.audio_buffer) >= self.desired_length:
             # Save to temp file and enqueue for processing
-            temp_file, temp_file_path = tempfile.mkstemp(suffix='.wav')
+            temp_file, temp_file_path = tempfile.mkstemp(suffix=".wav")
             os.close(temp_file)
-            with wave.open(temp_file_path, 'wb') as wave_file:
+            with wave.open(temp_file_path, "wb") as wave_file:
                 wave_file.setnchannels(1)
                 wave_file.setsampwidth(2)
                 wave_file.setframerate(self.chosen_sample_rate)
@@ -119,16 +145,18 @@ class AudioTranscriber:
 
         p = pyaudio.PyAudio()
         try:
-            stream = p.open(format=pyaudio.paInt16,
-                            channels=1,
-                            rate=self.chosen_sample_rate,
-                            input=True,
-                            input_device_index=device_index,
-                            frames_per_buffer=frames_per_buffer,
-                            stream_callback=self.audio_callback)
+            stream = p.open(
+                format=pyaudio.paInt16,
+                channels=1,
+                rate=self.chosen_sample_rate,
+                input=True,
+                input_device_index=device_index,
+                frames_per_buffer=frames_per_buffer,
+                stream_callback=self.audio_callback,
+            )
             stream.start_stream()
             print("Recording. Press Ctrl+C to stop.")
-            
+
             # Ensuring the stream is active before entering the loop
             if stream.is_active():
                 try:
@@ -142,7 +170,7 @@ class AudioTranscriber:
             print(f"Failed to open stream: {e}")
         finally:
             # Ensure resources are always cleaned up
-            if 'stream' in locals() and stream.is_active():
+            if "stream" in locals() and stream.is_active():
                 stream.stop_stream()
                 stream.close()
             p.terminate()

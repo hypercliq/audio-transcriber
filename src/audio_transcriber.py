@@ -1,13 +1,16 @@
+import time
+
 import pyaudio
 from pynput import keyboard
 
-from audio_utils import (
+from src.audio_utils import (
     choose_audio_device,
     choose_sample_rate,
     find_supported_sample_rates,
 )
-from config import FRAMES_PER_BUFFER
-from whisper_transcription import WhisperTranscription
+from src.cli_interface import CliInterface
+from src.config import FRAMES_PER_BUFFER
+from src.whisper_transcription import WhisperTranscription
 
 
 class AudioTranscriber:
@@ -24,6 +27,7 @@ class AudioTranscriber:
         self.whisper_transcription = WhisperTranscription(
             model_size, self.chosen_sample_rate
         )
+        CliInterface.print_welcome()
 
     def setup_audio_device(self):
         """
@@ -43,43 +47,46 @@ class AudioTranscriber:
         If not currently recording, start recording.
         """
         if self.recording:
-            self.stop_recording()
+            self.pause_recording()
+            CliInterface.print_recording_paused()
         else:
             self.start_recording()
+            CliInterface.print_recording_started()
 
     def start_recording(self):
         """
         Start recording audio. Opens a new stream with the chosen audio device and sample rate.
         The stream's callback function is set to the transcription service's audio callback function.
         """
-        if(not self.recording):
-          print("Preparing to start recording...")
-          self.stream = self.pyaudio_instance.open(
-              format=pyaudio.paInt16,
-              channels=1,
-              rate=self.chosen_sample_rate,
-              input=True,
-              input_device_index=self.device_index,
-              frames_per_buffer=FRAMES_PER_BUFFER,
-              stream_callback=self.whisper_transcription.audio_callback,
-          )
-          self.stream.start_stream()
-          print("Recording started. Press Space to stop.")
-          self.recording = True
+        if not self.recording:
+            CliInterface.print_initialize_recording()
+            self.stream = self.pyaudio_instance.open(
+                format=pyaudio.paInt16,
+                channels=1,
+                rate=self.chosen_sample_rate,
+                input=True,
+                input_device_index=self.device_index,
+                frames_per_buffer=FRAMES_PER_BUFFER,
+                stream_callback=self.whisper_transcription.audio_callback,
+            )
+            self.stream.start_stream()
+            self.recording = True
 
-    def stop_recording(self):
+    def pause_recording(self, stop=False):
         """
-        Stop recording audio. Closes the current stream and finalizes the recording in the transcription service.
+        Pause recording audio. Stop the audio stream and wait for the transcription service to finish processing.
         """
-        if(self.recording):
-          print("Stopping recording...")
-          if self.stream:
-              self.stream.stop_stream()
-              self.stream.close()
-              self.stream = None
-          self.whisper_transcription.finalize_recording()
-          print("done")
-          self.recording = False
+        if self.recording:
+            if self.stream:
+                self.stream.stop_stream()
+                self.stream.close()
+                self.stream = None
+            self.whisper_transcription.finalize_recording()
+            self.recording = False
+
+        CliInterface.print_recording_pausing(stop)
+        while not self.whisper_transcription.is_processing_completed():
+            time.sleep(0.1)  # Adjust sleep time as necessary
 
     def on_key_press(self, key):
         """
@@ -91,16 +98,16 @@ class AudioTranscriber:
             self.toggle_recording()
         elif key == keyboard.Key.esc:
             if self.recording:
-                self.stop_recording()
+                self.pause_recording(stop=True)
             self.whisper_transcription.stop_processing()
             self.pyaudio_instance.terminate()
-            print("Exiting application...")
+            CliInterface.print_exit()
             return False
+        return None
 
     def run(self):
         """
         Start the main loop of the application. Listens for key press events and handles them with the on_key_press function.
-        """
-        print("Press Space to start/stop recording, Esc to exit.")
+        """        
         with keyboard.Listener(on_press=self.on_key_press) as listener:
             listener.join()

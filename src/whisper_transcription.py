@@ -91,11 +91,9 @@ class WhisperTranscription:
             CliInterface.print_transcription_failed()
 
         self.active_transcribing_tasks -= 1
-    
 
     def is_processing_completed(self):
         return self.processing_queue.empty() and self.active_transcribing_tasks == 0
-
 
     def process_audio_chunk_volume(self, in_data):
         """
@@ -147,7 +145,7 @@ class WhisperTranscription:
         self.processing_queue.put(
             (self.audio_buffer, temp_file_path, volume_db)
         )  # Ensure this matches the expected unpacking
-        
+
         self.audio_buffer = bytes()  # Clear the buffer for the next chunk
 
     def finalize_recording(self):

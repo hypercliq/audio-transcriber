@@ -108,6 +108,6 @@ class AudioTranscriber:
     def run(self):
         """
         Start the main loop of the application. Listens for key press events and handles them with the on_key_press function.
-        """        
+        """
         with keyboard.Listener(on_press=self.on_key_press) as listener:
             listener.join()

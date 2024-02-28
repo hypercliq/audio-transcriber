@@ -16,6 +16,7 @@ def list_audio_devices(pyaudio_instance):
     ]
     CliInterface.print_devices(devices)
 
+
 def choose_audio_device(pyaudio_instance):
     """
     Prompts the user to choose an audio device from the list of available devices.
@@ -25,6 +26,7 @@ def choose_audio_device(pyaudio_instance):
     list_audio_devices(pyaudio_instance)
     device_index = int(input("Enter the index of the desired audio device: "))
     return device_index
+
 
 def find_supported_sample_rates(pyaudio_instance, device_index):
     """
@@ -37,13 +39,21 @@ def find_supported_sample_rates(pyaudio_instance, device_index):
     supported_rates = []
     for rate in sample_rates:
         try:
-            stream = pyaudio_instance.open(format=pyaudio.paInt16, channels=1, rate=rate, input=True, input_device_index=device_index, frames_per_buffer=4096)
+            stream = pyaudio_instance.open(
+                format=pyaudio.paInt16,
+                channels=1,
+                rate=rate,
+                input=True,
+                input_device_index=device_index,
+                frames_per_buffer=4096,
+            )
             stream.close()
             supported_rates.append(rate)
         except Exception:
             continue
     CliInterface.print_supported_sample_rates(supported_rates)
     return supported_rates
+
 
 def choose_sample_rate(supported_rates):
     """

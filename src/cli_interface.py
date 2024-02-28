@@ -15,7 +15,10 @@ class CliInterface:
 
     @staticmethod
     def print_recording_pausing(stop=False):
-        print("\nPausing" if not stop else "\nStopping", "recording... please wait for processing to finish.")
+        print(
+            "\nPausing" if not stop else "\nStopping",
+            "recording... please wait for processing to finish.",
+        )
 
     @staticmethod
     def print_recording_paused():

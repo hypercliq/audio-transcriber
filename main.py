@@ -1,14 +1,14 @@
 import warnings
 
-from audio_transcriber import AudioTranscriber
-from config import MODEL_SIZE
+from src.audio_transcriber import AudioTranscriber
+from src.config import MODEL_SIZE
 
 
 def main():
-    # Create an instance of the AudioTranscriber with the model size from the configuration.
+    """
+    Main function to create an instance of the AudioTranscriber and start it.
+    """
     transcriber = AudioTranscriber(model_size=MODEL_SIZE)
-
-    # Start the transcriber's main loop to listen for key presses and manage recordings.
     transcriber.run()
 
 

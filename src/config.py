@@ -14,3 +14,9 @@ RECORDING_DURATION = 5
 
 # Max retry attempts for the Whisper API
 MAX_RETRIES = 3
+
+# Print the results of the transcription to file
+PRINT_TO_FILE = True
+
+# Path to the file to print the transcription results
+OUTPUT_FILE_PATH = "transcription_results.json"

@@ -72,5 +72,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-- Thanks to OpenAI for providing the Whisper model.
+- Thanks to OpenAI for providing the [Whisper](https://github.com/openai/whisper) model.
 - Gratitude to the Python community for its excellent ecosystem of tools and libraries.

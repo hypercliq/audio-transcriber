@@ -49,8 +49,9 @@ To start the transcription, run:
 python main.py
 ```
 
-- Press **Space** to toggle recording on and off.
-- Press **Esc** to exit the application, process any remaining audio data and display the transcription.
+- After running the command, you will be prompted to choose the microphone to use from the list of available devices and to select the sample rate from the supported rates for your chosen microphone.
+- Press **Space** to toggle recording on and off. This allows you to control when the application is actively recording audio.
+- Press **Esc** to safely exit the application. Upon exiting, any remaining audio data will be processed, and the transcription results will either be displayed on the screen or saved to a file, based on your configuration settings.
 
 ### Configuration
 

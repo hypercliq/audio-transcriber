@@ -1,15 +1,15 @@
-# Python Audio Transcription Project
+# Whisper Audio Transcription
 
-This project utilizes OpenAI's Whisper model to transcribe audio in (almost) real-time. It records audio from the user's microphone, chunks the audio (5 seconds), and then feeds these chunks to Whisper for transcription. This approach allows for continuous audio processing and transcription.
+This project utilizes OpenAI's Whisper model to transcribe audio in (almost) real-time. It records audio from the user's microphone, segments the audio into 5-second chunks, and then feeds these chunks to Whisper for transcription. This approach enables continuous audio processing and transcription.
 
-The result of each chunk's transcription is displayed on the screen as JSON data. Words are timestamped, and the confidence score is also provided.
-
-Each chunk's volume, in decibels, is also displayed on the screen before the transcription.
+The user can start and pause the recording using the **Space** key and exit the application with the **Esc** key. Upon exiting, the application will either display the transcribed text on the screen or save it to a file, including a word-by-word breakdown of the transcription with timestamps, confidence scores, and volume information for each word. The volume is calculated using the root mean square (RMS) of the audio chunks in which the word was spoken.
 
 ## Features
 
-- Real-time audio recording and (almost real-time) processing.
+- Real-time audio recording and (almost) real-time transcription.
 - Utilizes OpenAI's Whisper model for accurate transcription.
+- Provides a word-by-word breakdown of the transcription with timestamps, confidence scores, and volume information.
+
 
 ## Getting Started
 
@@ -49,12 +49,12 @@ To start the transcription, run:
 python main.py
 ```
 
-- Press **Space** to start/stop recording.
-- Press **Esc** to exit the application.
+- Press **Space** to toggle recording on and off.
+- Press **Esc** to exit the application, process any remaining audio data and display the transcription.
 
 ### Configuration
 
-You can adjust the project settings, such as the Whisper model size and recording duration, in the `config.py` file.
+Adjust project settings, such as the Whisper model size and recording duration, in the `config.py` file.
 
 ## Contributing
 
@@ -72,5 +72,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-- OpenAI for providing the Whisper model.
-- The Python community for an excellent ecosystem of tools and libraries.
+- Thanks to OpenAI for providing the Whisper model.
+- Gratitude to the Python community for its excellent ecosystem of tools and libraries.

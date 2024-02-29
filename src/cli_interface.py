@@ -30,15 +30,11 @@ class CliInterface:
 
     @staticmethod
     def print_processing_chunk(volume_db, chunk_size):
-        print(
-            f"\r>> Processing chunk (Volume: {volume_db:.2f} dB, Size: {chunk_size} bytes)..."
-        )
+        print(f"\r>> Processing chunk (Volume: {volume_db:.2f} dB, Size: {chunk_size} bytes)...")
 
     @staticmethod
     def print_processed_chunk(volume_db, chunk_size):
-        print(
-            f"\nProcessed audio chunk with volume {volume_db:.2f} dB and size {chunk_size}."
-        )
+        print(f"\nProcessed audio chunk with volume {volume_db:.2f} dB and size {chunk_size}.")
 
     @staticmethod
     def print_transcription_attempt(attempt):

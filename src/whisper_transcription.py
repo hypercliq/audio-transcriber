@@ -26,9 +26,7 @@ class WhisperTranscription:
         self.chosen_sample_rate = chosen_sample_rate
         self.processing_queue = Queue()
         self.is_processing = True
-        self.audio_buffer = (
-            bytes()
-        )  # Initialize an empty buffer for accumulating audio data
+        self.audio_buffer = bytes()  # Initialize an empty buffer for accumulating audio data
         self.desired_length = chosen_sample_rate * 2 * RECORDING_DURATION
         self.transcription_results = []  # Accumulate transcription results with volumes
         self.start_processing_thread()
@@ -59,9 +57,7 @@ class WhisperTranscription:
                     temp_file_path,
                     volume_db,
                 ) = self.processing_queue.get()  # Adjusted to include volume_db
-                self.transcribe_audio_chunk(
-                    temp_file_path, volume_db
-                )  # Pass volume_db to the method
+                self.transcribe_audio_chunk(temp_file_path, volume_db)  # Pass volume_db to the method
                 # CliInterface.print_processed_chunk(volume_db, len(audio_chunk))
             else:
                 time.sleep(0.1)  # Sleep briefly to avoid busy waiting
@@ -78,9 +74,7 @@ class WhisperTranscription:
             try:
                 result = self.model.transcribe(temp_file_path, word_timestamps=True)
                 os.remove(temp_file_path)  # Clean up the temporary file
-                self.append_transcription_result(
-                    result, volume_db
-                )  # Append result with volume
+                self.append_transcription_result(result, volume_db)  # Append result with volume
                 break
             except Exception as e:
                 CliInterface.print_error(e)
@@ -117,7 +111,8 @@ class WhisperTranscription:
 
     def audio_callback(self, in_data, _frame_count, _time_info, _status):
         """
-        Callback function for the audio stream. Adds the incoming audio data to the buffer and processes it when it reaches the desired length.
+        Callback function for the audio stream.
+        Adds the incoming audio data to the buffer and processes it when it reaches the desired length.
         :param in_data: The incoming audio data.
         :param _frame_count: The number of frames in the audio data.
         :param _time_info: Information about the timing of the audio data.
@@ -142,9 +137,7 @@ class WhisperTranscription:
             wave_file.writeframes(self.audio_buffer)
         volume_db = self.process_audio_chunk_volume(self.audio_buffer)
         CliInterface.print_processing_chunk(volume_db, len(self.audio_buffer))
-        self.processing_queue.put(
-            (self.audio_buffer, temp_file_path, volume_db)
-        )  # Ensure this matches the expected unpacking
+        self.processing_queue.put((self.audio_buffer, temp_file_path, volume_db))  # Ensure this matches the expected unpacking
 
         self.audio_buffer = bytes()  # Clear the buffer for the next chunk
 

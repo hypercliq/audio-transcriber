@@ -4,17 +4,16 @@ from src.cli_interface import CliInterface
 from src.config import SAMPLE_RATES
 
 
-def list_audio_devices(pyaudio_instance):
+def get_audio_devices(pyaudio_instance):
     """
     Lists the available audio devices.
     :param pyaudio_instance: An instance of the PyAudio class.
     """
-    devices = [
+    return [
         (i, pyaudio_instance.get_device_info_by_index(i).get("name"))
         for i in range(pyaudio_instance.get_device_count())
         if pyaudio_instance.get_device_info_by_index(i).get("maxInputChannels") > 0
     ]
-    CliInterface.print_devices(devices)
 
 
 def choose_audio_device(pyaudio_instance):
@@ -23,7 +22,8 @@ def choose_audio_device(pyaudio_instance):
     :param pyaudio_instance: An instance of the PyAudio class.
     :return: The index of the chosen audio device.
     """
-    list_audio_devices(pyaudio_instance)
+    devices = get_audio_devices(pyaudio_instance)
+    CliInterface.print_devices(devices)
     device_index = int(input("Enter the index of the desired audio device: "))
     return device_index
 

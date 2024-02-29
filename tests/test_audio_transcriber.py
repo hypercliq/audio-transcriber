@@ -99,11 +99,7 @@ class ListenerMock(Mock):
 
 # Test to verify the run method of AudioTranscriber
 def test_run(audio_transcriber_mocked):
-    with patch(
-        "src.audio_transcriber.keyboard.Listener", return_value=ListenerMock()
-    ) as listener_mock:
+    with patch("src.audio_transcriber.keyboard.Listener", return_value=ListenerMock()) as listener_mock:
         audio_transcriber_mocked.run()
-        listener_mock.assert_called_once_with(
-            on_press=audio_transcriber_mocked.on_key_press
-        )
+        listener_mock.assert_called_once_with(on_press=audio_transcriber_mocked.on_key_press)
         listener_mock.return_value.join.assert_called_once()

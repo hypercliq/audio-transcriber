@@ -13,9 +13,7 @@ def mock_whisper_transcription():
     with patch("whisper.load_model", return_value=MagicMock()) as mock_model:
         mock_model.return_value.transcribe.return_value = {
             "text": "mock transcription",
-            "segments": [
-                {"words": [{"word": "mock", "start": 0, "end": 1, "probability": 1.0}]}
-            ],
+            "segments": [{"words": [{"word": "mock", "start": 0, "end": 1, "probability": 1.0}]}],
         }
         transcription = WhisperTranscription("small", 16000)
         yield transcription  # yield the mock object for testing
@@ -27,9 +25,7 @@ def test_queue_not_empty(mock_whisper_transcription):
     # Initially, the processing queue should be empty
     assert not mock_whisper_transcription.queue_not_empty()
     # After adding an item to the queue, it should not be empty
-    mock_whisper_transcription.processing_queue.put(
-        ("audio_chunk", "temp_file_path", 0)
-    )
+    mock_whisper_transcription.processing_queue.put(("audio_chunk", "temp_file_path", 0))
     assert mock_whisper_transcription.queue_not_empty()
 
 
@@ -73,20 +69,13 @@ def test_process_audio_chunk_volume(mock_whisper_transcription):
 def test_append_transcription_result(mock_whisper_transcription):
     result = {
         "text": "test",
-        "segments": [
-            {"words": [{"word": "hello", "start": 0, "end": 1, "probability": 1.0}]}
-        ],
+        "segments": [{"words": [{"word": "hello", "start": 0, "end": 1, "probability": 1.0}]}],
     }
     # Append a transcription result and check if it's added to the results list
     mock_whisper_transcription.append_transcription_result(result, 10)
     assert len(mock_whisper_transcription.transcription_results) == 1
     # Check if the volume level is correctly added to the result
-    assert (
-        mock_whisper_transcription.transcription_results[0]["segments"][0]["words"][0][
-            "volume_db"
-        ]
-        == 10
-    )
+    assert mock_whisper_transcription.transcription_results[0]["segments"][0]["words"][0]["volume_db"] == 10
 
 
 # Test to verify the finalize_recording method

@@ -41,6 +41,8 @@ pyenv local audio-transcriber-3.9.0
 pip install -r requirements.txt
 ```
 
+> `PyAudio` may require additional dependencies to be installed on your system. Please refer to the [PyAudio documentation](https://people.csail.mit.edu/hubert/pyaudio/docs/) for more information.
+
 ### Usage
 
 To start the transcription, run:

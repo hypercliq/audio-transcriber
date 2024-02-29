@@ -14,7 +14,5 @@ def main():
 
 if __name__ == "__main__":
     # Suppress the FP16 warning
-    warnings.filterwarnings(
-        "ignore", message="FP16 is not supported on CPU; using FP32 instead"
-    )
+    warnings.filterwarnings("ignore", message="FP16 is not supported on CPU; using FP32 instead")
     main()

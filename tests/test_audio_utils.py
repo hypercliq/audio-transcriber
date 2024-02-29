@@ -8,7 +8,6 @@ from src.audio_utils import (
     find_supported_sample_rates,
     get_audio_devices,
 )
-from src.config import SAMPLE_RATES
 
 
 # Fixture to mock supported sample rates
@@ -31,9 +30,7 @@ def mock_pyaudio_instance():
     # Set the return value for get_device_count
     mock_instance.get_device_count.return_value = len(device_info)
     # Set the side effect for get_device_info_by_index
-    mock_instance.get_device_info_by_index.side_effect = lambda index: device_info[
-        index
-    ]
+    mock_instance.get_device_info_by_index.side_effect = lambda index: device_info[index]
     return mock_instance
 
 
@@ -54,9 +51,7 @@ def test_choose_audio_device(mocker, mock_pyaudio_instance):
 
 
 # Test to verify the find_supported_sample_rates function
-def test_find_supported_sample_rates_correctly_filters_rates(
-    mock_pyaudio_instance, mock_supported_rates
-):
+def test_find_supported_sample_rates_correctly_filters_rates(mock_pyaudio_instance, mock_supported_rates):
     # Define the side effect for the open method of the PyAudio instance
     def open_side_effect(*args, **kwargs):
         rate = kwargs.get("rate")

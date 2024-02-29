@@ -24,9 +24,7 @@ class AudioTranscriber:
         self.pyaudio_instance = pyaudio.PyAudio()
         self.stream = None
         self.device_index, self.chosen_sample_rate = self.setup_audio_device()
-        self.whisper_transcription = WhisperTranscription(
-            model_size, self.chosen_sample_rate
-        )
+        self.whisper_transcription = WhisperTranscription(model_size, self.chosen_sample_rate)
         CliInterface.print_welcome()
 
     def setup_audio_device(self):
@@ -35,9 +33,7 @@ class AudioTranscriber:
         :return: The device index and chosen sample rate.
         """
         device_index = choose_audio_device(self.pyaudio_instance)
-        supported_rates = find_supported_sample_rates(
-            self.pyaudio_instance, device_index
-        )
+        supported_rates = find_supported_sample_rates(self.pyaudio_instance, device_index)
         chosen_sample_rate = choose_sample_rate(supported_rates)
         return device_index, chosen_sample_rate
 

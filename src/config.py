@@ -28,4 +28,4 @@ PRINT_TO_FILE = True
 OUTPUT_FILE_PATH = "transcription_results.json"
 
 # Export raw transcriptions to a file
-EXPORT_RAW_TRANSCRIPTIONS = True
+EXPORT_RAW_TRANSCRIPTIONS = False

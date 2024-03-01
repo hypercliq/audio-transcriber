@@ -8,7 +8,7 @@ from src.audio_utils import (
     choose_sample_rate,
     find_supported_sample_rates,
 )
-from src.cli_interface import CliInterface
+from src.cli_interface import CliInterface, start_pause_message
 from src.config import FRAMES_PER_BUFFER
 from src.whisper_transcription import WhisperTranscription
 
@@ -24,8 +24,10 @@ class AudioTranscriber:
         self.pyaudio_instance = pyaudio.PyAudio()
         self.stream = None
         self.device_index, self.chosen_sample_rate = self.setup_audio_device()
-        self.whisper_transcription = WhisperTranscription(model_size, self.chosen_sample_rate)
         CliInterface.print_welcome()
+        self.whisper_transcription = WhisperTranscription(model_size, self.chosen_sample_rate)
+
+        CliInterface.print_info(start_pause_message)
 
     def setup_audio_device(self):
         """
@@ -34,6 +36,11 @@ class AudioTranscriber:
         """
         device_index = choose_audio_device(self.pyaudio_instance)
         supported_rates = find_supported_sample_rates(self.pyaudio_instance, device_index)
+        # if supported_rates is empty, print an error message and exit
+        if not supported_rates:
+            CliInterface.print_error("No supported sample rates found for the device.")
+            self.pyaudio_instance.terminate()
+            exit(1)
         chosen_sample_rate = choose_sample_rate(supported_rates)
         return device_index, chosen_sample_rate
 
@@ -44,10 +51,10 @@ class AudioTranscriber:
         """
         if self.recording:
             self.pause_recording()
-            CliInterface.print_recording_paused()
+            print(CliInterface.colorize("\r\n\u23f8", bold=True) + " Recording paused. " + start_pause_message)
         else:
             self.start_recording()
-            CliInterface.print_recording_started()
+            print(CliInterface.colorize("\r\n\u25cf", red=True) + " Recording started. " + start_pause_message)
 
     def start_recording(self):
         """
@@ -55,7 +62,7 @@ class AudioTranscriber:
         The stream's callback function is set to the transcription service's audio callback function.
         """
         if not self.recording:
-            CliInterface.print_initialize_recording()
+            CliInterface.print_info("Initializing recording...")
             self.stream = self.pyaudio_instance.open(
                 format=pyaudio.paInt16,
                 channels=1,
@@ -72,6 +79,13 @@ class AudioTranscriber:
         """
         Pause recording audio. Stop the audio stream and wait for the transcription service to finish processing.
         """
+
+        CliInterface.print_info(
+            "Pausing recording... wait for processing to complete"
+            if not stop
+            else "Stopping recording... wait for processing to complete"
+        )
+
         if self.recording:
             if self.stream:
                 self.stream.stop_stream()
@@ -80,7 +94,6 @@ class AudioTranscriber:
             self.whisper_transcription.finalize_recording()
             self.recording = False
 
-        CliInterface.print_recording_pausing(stop)
         while not self.whisper_transcription.is_processing_completed():
             time.sleep(0.1)  # Adjust sleep time as necessary
 
@@ -105,5 +118,5 @@ class AudioTranscriber:
         """
         Start the main loop of the application. Listens for key press events and handles them with the on_key_press function.
         """
-        with keyboard.Listener(on_press=self.on_key_press) as listener:
+        with keyboard.Listener(on_press=self.on_key_press) as listener:  # type: ignore
             listener.join()

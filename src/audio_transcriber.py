@@ -1,4 +1,8 @@
+import os
+import sys
+import termios
 import time
+import tty
 
 import pyaudio
 from pynput import keyboard
@@ -118,5 +122,21 @@ class AudioTranscriber:
         """
         Start the main loop of the application. Listens for key press events and handles them with the on_key_press function.
         """
-        with keyboard.Listener(on_press=self.on_key_press) as listener:  # type: ignore
-            listener.join()
+        # Check if sys.stdin is a real file
+        if os.isatty(sys.stdin.fileno()):
+            # Save the current terminal settings
+            old_settings = termios.tcgetattr(sys.stdin)
+
+            try:
+                # Disable echoing
+                tty.setcbreak(sys.stdin.fileno())
+
+                with keyboard.Listener(on_press=self.on_key_press) as listener:  # type: ignore
+                    listener.join()
+            finally:
+                # Restore the old terminal settings
+                termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+        else:
+            # sys.stdin is not a real file, so just run the listener
+            with keyboard.Listener(on_press=self.on_key_press) as listener:  # type: ignore
+                listener.join()

@@ -12,7 +12,15 @@ import pyaudio
 import whisper
 
 from src.cli_interface import CliInterface
-from src.config import MAX_RETRIES, OUTPUT_FILE_PATH, PRINT_TO_FILE, RECORDING_DURATION
+from src.config import (
+    EXPORT_RAW_TRANSCRIPTIONS,
+    LANGUAGE_CODE,
+    MAX_RETRIES,
+    OUTPUT_FILE_PATH,
+    PRINT_TO_FILE,
+    PROMPT,
+    RECORDING_DURATION,
+)
 
 
 class WhisperTranscription:
@@ -22,6 +30,7 @@ class WhisperTranscription:
         :param model_size: The size of the model to use for transcription.
         :param chosen_sample_rate: The sample rate chosen for recording.
         """
+        CliInterface.print_info("Loading Whisper model: " + CliInterface.colorize(model_size, bold=True))
         self.model = whisper.load_model(model_size)
         self.chosen_sample_rate = chosen_sample_rate
         self.processing_queue = Queue()
@@ -58,7 +67,9 @@ class WhisperTranscription:
                     volume_db,
                 ) = self.processing_queue.get()  # Adjusted to include volume_db
                 self.transcribe_audio_chunk(temp_file_path, volume_db)  # Pass volume_db to the method
-                # CliInterface.print_processed_chunk(volume_db, len(audio_chunk))
+                CliInterface.print_success(
+                    "Processed audio chunk with volume {:.2f} dB and size {}.".format(volume_db, len(audio_chunk))
+                )
             else:
                 time.sleep(0.1)  # Sleep briefly to avoid busy waiting
 
@@ -72,17 +83,17 @@ class WhisperTranscription:
         attempt = 0
         while attempt < MAX_RETRIES:
             try:
-                result = self.model.transcribe(temp_file_path, word_timestamps=True)
+                result = self.model.transcribe(temp_file_path, word_timestamps=True, language=LANGUAGE_CODE, prompt=PROMPT)
                 os.remove(temp_file_path)  # Clean up the temporary file
                 self.append_transcription_result(result, volume_db)  # Append result with volume
                 break
             except Exception as e:
                 CliInterface.print_error(e)
-                CliInterface.print_transcription_attempt(attempt + 1)
+                CliInterface.print_warning(f"Retrying transcription attempt {attempt + 1}...")
                 time.sleep(1)  # Adding delay between retries
                 attempt += 1
         if attempt == MAX_RETRIES:
-            CliInterface.print_transcription_failed()
+            CliInterface.print_error("Failed to transcribe audio chunk.")
 
         self.active_transcribing_tasks -= 1
 
@@ -136,7 +147,6 @@ class WhisperTranscription:
             wave_file.setframerate(self.chosen_sample_rate)
             wave_file.writeframes(self.audio_buffer)
         volume_db = self.process_audio_chunk_volume(self.audio_buffer)
-        CliInterface.print_processing_chunk(volume_db, len(self.audio_buffer))
         self.processing_queue.put((self.audio_buffer, temp_file_path, volume_db))  # Ensure this matches the expected unpacking
 
         self.audio_buffer = bytes()  # Clear the buffer for the next chunk
@@ -160,19 +170,32 @@ class WhisperTranscription:
         """
         Output the full transcription results, including the full text and information about each word.
         """
-        full_text = " ".join([result["text"] for result in self.transcription_results])
-        words = [
-            word
-            for result in self.transcription_results
-            for segment in result.get("segments", [])
-            for word in segment.get("words", [])
-        ]
-        output = {"full_text": full_text, "words": words}
+        if self.transcription_results.__len__() == 0:
+            CliInterface.print_warning("No transcription results to output.")
+            return
+        if EXPORT_RAW_TRANSCRIPTIONS:
+            output = self.transcription_results
+        else:
+            full_text = "".join([result["text"] for result in self.transcription_results])
+            words = [
+                word
+                for result in self.transcription_results
+                for segment in result.get("segments", [])
+                for word in segment.get("words", [])
+            ]
+            output = {
+                "full_text": full_text,
+                "words": words,
+            }
+
         json_output = json.dumps(output, indent=4)
 
         if PRINT_TO_FILE:
             with open(OUTPUT_FILE_PATH, "w") as file:
                 file.write(json_output)
-            CliInterface.print_output_path(OUTPUT_FILE_PATH)
+            CliInterface.print_info(
+                "Transcription results have been written to: " + CliInterface.colorize(OUTPUT_FILE_PATH, bold=True)
+            )
         else:
-            CliInterface.print_output(json_output)
+            CliInterface.print_info("Transcription results:")
+            print(json_output)

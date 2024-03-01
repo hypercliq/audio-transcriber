@@ -1,95 +1,72 @@
 class CliInterface:
     @staticmethod
+    def colorize(string, bold=False, red=False, yellow=False, green=False, cyan=False):
+        """
+        Return a string with bold, red, and/or yellow formatting. If many colors are specified, the color precedence is:
+        red > yellow > green > cyan.
+        :param string: The input string.
+        :param bold: Whether to use bold formatting.
+        :param red: Whether to use red formatting.
+        :param yellow: Whether to use yellow formatting.
+        :param green: Whether to use green formatting.
+        :param cyan: Whether to use cyan formatting.
+        """
+        b = "\033[1m" if bold else ""
+        r = "\033[91m" if red else ""
+        y = "\033[93m" if yellow else ""
+        g = "\033[92m" if green else ""
+        c = "\033[96m" if cyan else ""
+        e = "\033[0m"
+
+        return f"{b}{c}{g}{y}{r}{string}{e}"
+
+    @staticmethod
     def print_welcome():
-        print("Welcome to the Whisper Audio Transcription Service")
-        print("-------------------------------------------------")
-        print("Press Space to start/stop recording, Esc to exit.")
-
-    @staticmethod
-    def print_initialize_recording():
-        print("Initializing recording...", end="", flush=True)
-
-    @staticmethod
-    def print_recording_started():
-        print("\r\033[91m●\033[0m Recording started. Press Space to pause...\n")
-
-    @staticmethod
-    def print_recording_pausing(stop=False):
-        print(
-            "\nPausing" if not stop else "\nStopping",
-            "recording... please wait for processing to finish.",
-        )
-
-    @staticmethod
-    def print_recording_paused():
-        print("\n\u23F8 Recording paused. Press Space to start or Esc to exit.")
+        print("\n--------------------------------------------")
+        print("| " + CliInterface.colorize("Welcome to the Whisper Audio Transcriber", bold=True) + " |")
+        print("--------------------------------------------")
 
     @staticmethod
     def print_exit():
-        print("\nExiting application... Thank you for using our service!")
-
-    @staticmethod
-    def print_processing_chunk(volume_db, chunk_size):
-        print(f"\r>> Processing chunk (Volume: {volume_db:.2f} dB, Size: {chunk_size} bytes)...")
-
-    @staticmethod
-    def print_processed_chunk(volume_db, chunk_size):
-        print(f"\nProcessed audio chunk with volume {volume_db:.2f} dB and size {chunk_size}.")
-
-    @staticmethod
-    def print_transcription_attempt(attempt):
-        print(f"\nTranscription attempt {attempt}...")
-
-    @staticmethod
-    def print_transcription_failed():
-        print("\nFailed to transcribe after several attempts.")
-
-    @staticmethod
-    def print_finalizing():
-        print("\nFinalizing recording...")
-
-    @staticmethod
-    def print_transcription_complete():
-        print("\nTranscription completed successfully.")
+        print("\r\nExiting application...")
+        print("\n-------------------------------------------------")
+        print("| " + CliInterface.colorize("Thank you for using Whisper Audio Transcriber", bold=True) + " |")
+        print("-------------------------------------------------")
 
     @staticmethod
     def print_error(e):
-        print(f"\nError: {e}")
+        print("\n" + CliInterface.colorize("!", red=True) + f" Error: {e}")
 
     @staticmethod
-    def print_output_path(path):
-        print(f"\nTranscription results have been written to: {path}")
+    def print_warning(warning):
+        print("\n" + CliInterface.colorize("⚠", yellow=True) + f" Warning: {warning}")
 
     @staticmethod
-    def print_output(json_output):
-        print(json_output)
+    def print_success(message):
+        print("\n" + CliInterface.colorize("✔", green=True) + f" {message}")
 
     @staticmethod
-    def print_devices(devices):
-        print("Available audio devices:")
-        for index, name in devices:
-            print(f"{index}: {name}")
+    def print_info(message):
+        print("\n" + CliInterface.colorize("i", cyan=True) + f" {message}")
 
     @staticmethod
-    def print_supported_sample_rates(rates):
-        print("Testing supported sample rates for the device:")
-        for rate in rates:
-            print(f"Supported: {rate} Hz")
+    def print_question(message):
+        print("\n" + CliInterface.colorize("?", bold=True) + f" {message}")
 
     @staticmethod
-    def print_sample_rate_options(supported_rates):
-        print("Supported sample rates: ")
-        for i, rate in enumerate(supported_rates, start=1):
-            print(f"{i}) {rate} Hz")
+    def question(message):
+        return CliInterface.colorize("?", bold=True) + f" {message}"
 
     @staticmethod
-    def print_invalid_selection():
-        print("Invalid selection. Please enter a number from the list.")
+    def print_error_message(message):
+        print("\n" + CliInterface.colorize("!", red=True) + f" {message}")
 
-    @staticmethod
-    def print_enter_number():
-        print("Enter the number corresponding to the desired sample rate: ")
 
-    @staticmethod
-    def print_invalid_number():
-        print("Please enter a valid number.")
+start_pause_message = (
+    "Press "
+    + CliInterface.colorize("Space", bold=True)
+    + " to start/pause recording."
+    + " Press "
+    + CliInterface.colorize("Esc", bold=True)
+    + " to exit."
+)

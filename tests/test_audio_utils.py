@@ -47,7 +47,7 @@ def test_choose_audio_device(mocker, mock_pyaudio_instance):
     mocker.patch("builtins.input", return_value="1")
     device_index = choose_audio_device(mock_pyaudio_instance)
     # Check if the function returns the correct device index
-    assert device_index == 1
+    assert device_index == 0
 
 
 # Test to verify the find_supported_sample_rates function

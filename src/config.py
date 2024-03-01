@@ -3,6 +3,12 @@
 # Model size to use for Whisper transcription. Options: "tiny", "base", "small", "medium", "large"
 MODEL_SIZE = "base"
 
+# Language code to use for Whisper transcription
+LANGUAGE_CODE = "en"
+
+# Whisper prompt to use for transcription
+PROMPT = ""
+
 # Sample rates to consider for testing device capabilities (in Hz)
 SAMPLE_RATES = [8000, 16000, 32000, 44100, 48000]
 
@@ -20,3 +26,6 @@ PRINT_TO_FILE = True
 
 # Path to the file to print the transcription results
 OUTPUT_FILE_PATH = "transcription_results.json"
+
+# Export raw transcriptions to a file
+EXPORT_RAW_TRANSCRIPTIONS = True

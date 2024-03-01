@@ -21,6 +21,7 @@ def audio_transcriber_mocked():
 
     # Mock CliInterface.print_welcome
     cli_interface_mock = Mock(spec=CliInterface)
+    cli_interface_mock.colorize.return_value = ''
 
     # Mock setup_audio_device method to return dummy device index and sample rate
     device_index, chosen_sample_rate = 0, 44100

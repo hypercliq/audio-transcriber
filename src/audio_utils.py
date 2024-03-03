@@ -26,7 +26,7 @@ def choose_audio_device(pyaudio_instance):
     CliInterface.print_info("Available audio devices:\n")
     for i, name in enumerate(devices, start=1):
         print(CliInterface.colorize(f"{i})", bold=True) + f" {name[1]}")
-    choice = int(input("\n" + CliInterface.question("Enter the number corresponding to the desired device: ")))
+    choice = int(input("\n" + CliInterface.format_question("Enter the number corresponding to the desired device: ")))
     return devices[choice - 1][0]
 
 
@@ -69,7 +69,7 @@ def choose_sample_rate(supported_rates):
     for i, rate in enumerate(supported_rates, start=1):
         print(f"{i}) {rate} Hz")
     try:
-        choice = int(input("\n" + CliInterface.question("Enter the number corresponding to the desired sample rate: ")))
+        choice = int(input("\n" + CliInterface.format_question("Enter the number corresponding to the desired sample rate: ")))
         if 1 <= choice <= len(supported_rates):
             return supported_rates[choice - 1]
         else:

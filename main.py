@@ -1,14 +1,13 @@
 import warnings
 
-from src.audio_transcriber import AudioTranscriber
-from src.config import MODEL_SIZE
+from src.audio_service import AudioService
 
 
 def main():
     """
     Main function to create an instance of the AudioTranscriber and start it.
     """
-    transcriber = AudioTranscriber(model_size=MODEL_SIZE)
+    transcriber = AudioService()
     transcriber.run()
 
 

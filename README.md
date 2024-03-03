@@ -1,15 +1,20 @@
 # Whisper Audio Transcription
 
-This project utilizes OpenAI's Whisper model to transcribe audio in (almost) real-time. It records audio from the user's microphone, segments the audio into 5-second chunks, and then feeds these chunks to Whisper for transcription. This approach enables continuous audio processing and transcription.
+This project utilizes OpenAI's Whisper model to transcribe audio in near real-time. It records audio from the user's microphone, segments the audio into 5-second chunks, and feeds these chunks to Whisper for transcription. This method enables continuous audio processing and transcription.
 
-The user can start and pause the recording using the **Space** key and exit the application with the **Esc** key. Upon exiting, the application will either display the transcribed text on the screen or save it to a file, including a word-by-word breakdown of the transcription with timestamps, confidence scores, and volume information for each word. The volume is calculated using the root mean square (RMS) of the audio chunks in which the word was spoken.
+Users can start and pause the recording using the **Space** key and exit the application with the **Esc** key. Upon exiting, the application will either display the transcribed text on the screen or save it to a file. The output includes a word-by-word breakdown of the transcription with timestamps, confidence scores, and volume information for each word, where volume is calculated using the root mean square (RMS) of the audio chunks.
+
+The application supports audio transcription in any language supported by the Whisper model and can translate the audio from any language into English. Users select the transcription task by setting the `TASK` variable in the `config.py` file.
+
+The audio language can be hinted by setting the `LANGUAGE_CODE` variable in `config.py`, or the application will attempt to detect the language automatically.
 
 ## Features
 
-- Real-time audio recording and (almost) real-time transcription.
+- Near real-time audio recording and transcription.
 - Utilizes OpenAI's Whisper model for accurate transcription.
-- Provides a word-by-word breakdown of the transcription with timestamps, confidence scores, and volume information.
-
+- Provides detailed transcription including timestamps, confidence scores, and volume information (only for `TASK` set to `transcribe`).
+- Supports multiple languages with automatic language detection.
+- Translation option to transcribe audio in English.
 
 ## Getting Started
 

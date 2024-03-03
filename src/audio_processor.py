@@ -10,7 +10,7 @@ from threading import Thread
 import pyaudio
 
 from src.cli_interface import CliInterface
-from src.config import RECORDING_DURATION
+from src.config import CHUNK_DURATION
 from src.whisper_service import WhisperService
 
 
@@ -18,7 +18,7 @@ class AudioProcessor:
     def __init__(self, chosen_sample_rate):
         self.processing_queue = Queue()
         self.audio_buffer = bytes()
-        self.desired_length = chosen_sample_rate * 2 * RECORDING_DURATION
+        self.desired_length = chosen_sample_rate * 2 * CHUNK_DURATION
         self.chosen_sample_rate = chosen_sample_rate
         self.whisper_transcription = WhisperService()
         self.is_processing = True

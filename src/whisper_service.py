@@ -6,11 +6,11 @@ import whisper
 
 from src.cli_interface import CliInterface
 from src.config import (
-    EXPORT_RAW_TRANSCRIPTIONS,
     LANGUAGE_CODE,
     MAX_RETRIES,
     MODEL_SIZE,
     OUTPUT_FILE_PATH,
+    OUTPUT_RAW_TRANSCRIPTION,
     PRINT_TO_FILE,
     PROMPT,
     TASK,
@@ -78,7 +78,7 @@ class WhisperService:
         if self.results.__len__() == 0:
             CliInterface.print_warning("No transcription results to output.")
             return
-        if EXPORT_RAW_TRANSCRIPTIONS:
+        if OUTPUT_RAW_TRANSCRIPTION:
             output = self.results
         else:
             full_text = "".join([result["text"] for result in self.results])

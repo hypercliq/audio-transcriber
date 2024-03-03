@@ -10,7 +10,7 @@ from src.whisper_service import WhisperService
 def whisper_service(mocker):
     mocker.patch("src.whisper_service.whisper.load_model", return_value=Mock())
     mocker.patch("src.whisper_service.PRINT_TO_FILE", True)
-    mocker.patch("src.whisper_service.EXPORT_RAW_TRANSCRIPTIONS", False)
+    mocker.patch("src.whisper_service.OUTPUT_RAW_TRANSCRIPTION", False)
     mocker.patch("src.whisper_service.OUTPUT_FILE_PATH", "/path/to/output.json")
     mocker.patch("src.whisper_service.TASK", "transcribe")
     mocker.patch("src.whisper_service.LANGUAGE_CODE", "en")

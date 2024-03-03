@@ -1,13 +1,16 @@
 # Configuration settings for the AudioTranscriber application
 
-# Model size to use for Whisper transcription. Options: "tiny", "base", "small", "medium", "large"
+# Model size to use for Whisper service. Options: "tiny", "base", "small", "medium", "large"
 MODEL_SIZE = "base"
 
-# Language code to use for Whisper transcription
+# Language code to use for Whisper service, i.e. the language of the audio to transcribe or translate
 LANGUAGE_CODE = "en"
 
-# Whisper prompt to use for transcription
+# Whisper prompt to help guide the transcription or translation
 PROMPT = ""
+
+# Whether to use the Whisper service for transcription or translation, valid options: "transcribe", "translate"
+TASK = "transcribe"
 
 # Sample rates to consider for testing device capabilities (in Hz)
 SAMPLE_RATES = [8000, 16000, 32000, 44100, 48000]

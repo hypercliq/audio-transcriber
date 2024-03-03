@@ -38,8 +38,8 @@ class CliInterface:
         print("\n" + CliInterface.colorize("!", red=True) + f" Error: {e}")
 
     @staticmethod
-    def print_warning(warning):
-        print("\n" + CliInterface.colorize("⚠", yellow=True) + f" Warning: {warning}")
+    def print_warning(message):
+        print("\n" + CliInterface.colorize("⚠", yellow=True) + f" {message}")
 
     @staticmethod
     def print_success(message):
@@ -50,12 +50,12 @@ class CliInterface:
         print("\n" + CliInterface.colorize("i", cyan=True) + f" {message}")
 
     @staticmethod
-    def print_question(message):
-        print("\n" + CliInterface.colorize("?", bold=True) + f" {message}")
+    def format_question(question):
+        return CliInterface.colorize("?", bold=True) + f" {question}"
 
     @staticmethod
-    def question(message):
-        return CliInterface.colorize("?", bold=True) + f" {message}"
+    def print_question(question):
+        print("\n" + CliInterface.format_question(question))
 
     @staticmethod
     def print_error_message(message):

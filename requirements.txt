@@ -47,7 +47,7 @@ sympy==1.12
 tiktoken==0.6.0
 tomli==2.0.1
 torch==2.2.1
-tqdm==4.66.2
+tqdm==4.66.3
 triton==2.2.0
 typing_extensions==4.10.0
 urllib3==2.2.1

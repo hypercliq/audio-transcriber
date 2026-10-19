@@ -29,6 +29,11 @@ class AudioService:
         """
         if key == keyboard.Key.space:
             self.audio_recorder.toggle_recording()
+        if key == keyboard.Key.tab:
+            if self.audio_recorder.recording:
+                self.audio_recorder.pause_recording()
+            self.audio_processor.dump_output()
+            print(CliInterface.colorize("\r\n\u23f8", bold=True) + " Recording paused. " + start_pause_message)
         elif key == keyboard.Key.esc:
             if self.audio_recorder.recording:
                 self.audio_recorder.pause_recording(stop=True)

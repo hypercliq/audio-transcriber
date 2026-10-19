@@ -58,6 +58,13 @@ class AudioProcessor:
         self.processing_thread.join()
         self.whisper_transcription.output_transcription_results()
 
+    def dump_output(self):
+        """
+        Dump the output of the transcription service to a file.
+        """
+        CliInterface.print_info("Dumping output to file...")
+        self.whisper_transcription.output_transcription_results()        
+
     def is_processing_completed(self):
         """
         Check if the processing of audio chunks is completed.

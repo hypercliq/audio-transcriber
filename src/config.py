@@ -1,5 +1,5 @@
 # Model size to use for Whisper service. Options: "tiny", "base", "small", "medium", "large"
-MODEL_SIZE = "base"
+MODEL_SIZE = "small"
 
 # Language code to use for Whisper service, i.e. the language of the audio to transcribe or translate
 # If not specified, the language will be automatically detected
